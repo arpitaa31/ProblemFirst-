@@ -1,52 +1,103 @@
-import type { Insight, InsightProvider } from "@/lib/insight-types";
+import type { Insight, InsightProvider, SupportItem } from "@/lib/insight-types";
 
-const systemInstruction = `You are a highly practical problem-solving assistant for ProblemFirst. Analyze real-life problems and give clear, specific, real-world guidance that reads like a thoughtful expert who understands the exact situation.
+type Section = "situation" | "why" | "steps" | "help" | "support";
+type Sections = Record<Section, string[]>;
 
-STRICT RULES:
-- Never repeat the user's wording in every sentence or start with formulae such as "For [problem]".
-- Never use generic self-help filler, including "write it down", "a few small factors can overlap", "try one small change", or "take it one day at a time", unless it is unusually and concretely relevant.
-- Do not give vague coaching. Name likely mechanisms, constraints, or causes that relate directly to this person’s described situation.
-- Make every action observable and practical: include a setting to change, a specific habit, a timing, a measurement, or a realistic decision point when useful.
-- Suggest tools, support, or product categories only when they materially fit; never force a product into the answer.
-- Vary sentence structure and priorities naturally. Do not reuse stock framing.
-- Be appropriately cautious: do not diagnose, overstate certainty, promote a brand, or make unsafe recommendations. For health, legal, finance, or safety concerns, clearly state meaningful escalation signs.
+function promptFor(problem: string) {
+  return `You are a practical real-world problem solving assistant.
 
-Return ONLY valid JSON, exactly with these fields:
-{
-  "situation": "a concise, context-aware understanding",
-  "why": ["2 or 3 concrete causes or contributing factors"],
-  "nextSteps": ["3 or 4 specific, practical actions"],
-  "seekHelp": "real conditions when expert or urgent help is appropriate",
-  "support": [{"category":"relevant tool, habit, service, or product category","detail":"why it helps here","icon":"a single simple symbol"}],
-  "disclaimer": "only when it is warranted"
+User problem:
+${problem}
+
+Give a helpful, specific answer including:
+- What may be going on
+- Why it might be happening
+- Practical steps
+- When to seek help
+- Suggested support, tools, habits, or product categories when they genuinely fit
+
+Avoid generic statements. Be specific to the user's situation. Do not repeat their wording in every sentence.
+
+Use exactly these headings with concise lines below each:
+What may be going on
+Why it might be happening
+Practical steps
+When to seek help
+Suggested support`;
 }
 
-Example standard: for screen-related eye discomfort, explain reduced blinking/dryness, brightness or glare mismatch, and uninterrupted near-focus; then recommend night mode or a warm display setting, the 20-20-20 break, matching display brightness to ambient light, and anti-glare or eye-care support. Do not copy this example into unrelated answers.`;
+function cleanLine(raw: string) {
+  let line = raw.trim();
+  while (line.startsWith("-") || line.startsWith("*") || line.startsWith("•")) line = line.slice(1).trim();
+  if (line.length > 2 && line[0] >= "0" && line[0] <= "9") {
+    const dot = line.indexOf(".");
+    if (dot > 0 && dot < 4) line = line.slice(dot + 1).trim();
+  }
+  return line;
+}
 
-function parseInsight(text: string): Insight {
-  const clean = text.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
-  const parsed: unknown = JSON.parse(clean);
-  if (!parsed || typeof parsed !== "object") throw new Error("Gemini did not return an object");
-  const result = parsed as Insight;
-  if (!result.situation || !Array.isArray(result.why) || !Array.isArray(result.nextSteps) || !result.seekHelp || !Array.isArray(result.support)) throw new Error("Gemini response was incomplete");
-  return result;
+function headingToSection(line: string): Section | null {
+  const heading = line.toLowerCase().replace(":", "").trim();
+  if (heading.includes("what may be going") || heading === "situation") return "situation";
+  if (heading.includes("why it might") || heading === "why") return "why";
+  if (heading.includes("practical steps") || heading === "steps") return "steps";
+  if (heading.includes("when to seek") || heading.includes("when should")) return "help";
+  if (heading.includes("suggested support") || heading === "support" || heading.includes("useful support")) return "support";
+  return null;
+}
+
+function sentences(text: string) {
+  return text.split(".").map((item) => item.trim()).filter((item) => item.length > 18).map((item) => `${item}.`);
+}
+
+function mapRawText(text: string): Insight {
+  const sections: Sections = { situation: [], why: [], steps: [], help: [], support: [] };
+  let active: Section = "situation";
+  for (const rawLine of text.split("\n")) {
+    const line = cleanLine(rawLine);
+    if (!line) continue;
+    const heading = headingToSection(line);
+    if (heading) { active = heading; continue; }
+    sections[active].push(line);
+  }
+
+  const fragments = sentences(text);
+  const situation = (sections.situation.join(" ") || fragments.slice(0, 2).join(" ") || text).slice(0, 420);
+  const why = sections.why.length ? sections.why.slice(0, 3) : fragments.slice(1, 4);
+  const nextSteps = sections.steps.length ? sections.steps.slice(0, 4) : fragments.slice(3, 7);
+  const seekHelp = sections.help.join(" ") || "Seek relevant professional help if symptoms are severe, sudden, worsening, unsafe, or interfere with daily life.";
+  const support: SupportItem[] = sections.support.slice(0, 4).map((category) => ({ category, detail: "A relevant direction to consider for this situation.", icon: "✦" }));
+
+  if (!situation || !why.length || !nextSteps.length) throw new Error("Gemini text could not be mapped into useful guidance");
+  return { situation, why, nextSteps, seekHelp, support };
 }
 
 export class GeminiInsightService implements InsightProvider {
   constructor(private apiKey: string) {}
 
   async generate(problem: string): Promise<Insight> {
-    const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.apiKey}`, {
+    const model = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.apiKey}`;
+    console.info("[ProblemFirst insight] API key exists:", Boolean(this.apiKey));
+    console.info("[ProblemFirst insight] Gemini called:", model);
+
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: `Give a fresh, problem-specific next-step plan for this exact situation:\n\n${problem}` }] }], systemInstruction: { parts: [{ text: systemInstruction }] }, generationConfig: { responseMimeType: "application/json", temperature: 0.9, maxOutputTokens: 1200 } }),
-      signal: AbortSignal.timeout(12000),
+      body: JSON.stringify({ contents: [{ parts: [{ text: promptFor(problem) }] }] }),
+      signal: AbortSignal.timeout(18000),
     });
-    if (!response.ok) throw new Error(`Gemini request failed with ${response.status}`);
-    const payload = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
-    const text = payload.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("");
-    if (!text) throw new Error("Gemini returned no content");
-    return parseInsight(text);
+
+    if (!response.ok) {
+      const body = await response.text();
+      console.error("[ProblemFirst insight] Gemini API error:", response.status, body);
+      throw new Error(`Gemini request failed with ${response.status}`);
+    }
+
+    const data = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    console.info("[ProblemFirst insight] Gemini raw response:", text);
+    if (!text.trim()) throw new Error("Gemini returned no text");
+    return mapRawText(text);
   }
 }
