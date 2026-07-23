@@ -1,16 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { onAuthStateChanged, signOut, type User } from "firebase/auth";
-import { useEffect, useState } from "react";
-import { auth } from "@/lib/firebase";
+import { useState } from "react";
+import { useAuth } from "@/components/auth-provider";
 import BrandMark from "@/components/brand-mark";
 import { Icon } from "@/components/icon";
 
 export default function SiteHeader() {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, signOutUser } = useAuth();
   const [open, setOpen] = useState(false);
-  useEffect(() => { if (!auth) return; return onAuthStateChanged(auth, setUser); }, []);
 
   const close = () => setOpen(false);
   const navLink = "nav-link text-[13px] font-semibold text-[#596473] transition hover:text-[#142033]";
@@ -21,7 +19,7 @@ export default function SiteHeader() {
         <Link className={navLink} href="/categories">Explore</Link><Link className={navLink} href="/trending">Signals</Link><Link className={navLink} href="/#how-it-works">How it works</Link>
       </nav>
       <div className="flex items-center gap-3">
-        {user ? <button onClick={() => auth && signOut(auth)} className="hidden text-[12px] font-semibold text-[#596473] hover:text-[#142033] sm:block">{user.displayName?.split(" ")[0] || "Account"} · Sign out</button> : <Link href="/auth" className="hidden text-[12px] font-semibold text-[#596473] hover:text-[#142033] sm:block">Sign in</Link>}
+        {user ? <button onClick={() => void signOutUser()} className="hidden text-[12px] font-semibold text-[#596473] hover:text-[#142033] sm:block">{user.displayName?.split(" ")[0] || "Account"} · Sign out</button> : <Link href="/auth" className="hidden text-[12px] font-semibold text-[#596473] hover:text-[#142033] sm:block">Sign in</Link>}
         <Link href="/for-business" className="pressable hidden bg-[#142033] px-3.5 py-2 text-[12px] font-bold text-white hover:bg-[#3857e8] sm:block">For teams</Link>
         <button onClick={() => setOpen(!open)} className="grid size-9 place-items-center border border-[#dfe2e6] text-[#142033] lg:hidden" aria-label="Toggle navigation" aria-expanded={open}><Icon name={open ? "close" : "menu"} className="size-4" /></button>
       </div>

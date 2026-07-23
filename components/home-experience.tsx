@@ -1,17 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { onAuthStateChanged, type User } from "firebase/auth";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Background from "@/components/background";
+import { useAuth } from "@/components/auth-provider";
 import BrandMark from "@/components/brand-mark";
 import DiscoveryResults from "@/components/discovery-results";
 import HowItWorksTimeline from "@/components/how-it-works-timeline";
 import { Icon } from "@/components/icon";
 import { MotionReveal } from "@/components/motion-reveal";
 import SiteHeader from "@/components/site-header";
-import { auth } from "@/lib/firebase";
 import { problems } from "@/lib/problem-library";
 import type { PracticalSolution } from "@/lib/solution-types";
 
@@ -33,11 +32,10 @@ function ProductPreview() { return <div className="reveal delay-3 border border-
 function DiscoveryLoading() { return <div className="mx-auto mt-16 max-w-xl border-y border-[#dfe2e6] py-10" role="status" aria-live="polite"><div className="flex items-start gap-4"><div className="mt-1 size-8 shrink-0 border border-[#c4ccdf] bg-[#eef1ff]" /><div className="min-w-0 flex-1"><p className="text-lg font-bold tracking-[-.03em] text-[#142033]">Finding practical solutions…</p><p className="mt-1 text-sm text-[#68717d]">Matching concrete options to your search.</p><div className="mt-5 space-y-2"><div className="loading-line h-2 w-[88%]" /><div className="loading-line h-2 w-[63%]" /><div className="loading-line h-2 w-[74%]" /></div></div></div></div>; }
 
 export default function HomeExperience() {
-  const searchParams = useSearchParams(); const [user, setUser] = useState<User | null>(null); const [query, setQuery] = useState(""); const [searchedQuery, setSearchedQuery] = useState(""); const [solutions, setSolutions] = useState<PracticalSolution[]>([]); const [loading, setLoading] = useState(false); const [error, setError] = useState(""); const [toastOpen, setToastOpen] = useState(false); const lastQuery = useRef(""); const toastTimer = useRef<number | null>(null);
-  useEffect(() => { if (!auth) return; return onAuthStateChanged(auth, setUser); }, []);
-  const showSignInToast = useCallback(() => { if (toastTimer.current) window.clearTimeout(toastTimer.current); setToastOpen(true); toastTimer.current = window.setTimeout(() => setToastOpen(false), 3800); }, []);
+  const searchParams = useSearchParams(); const { user, isAuthenticated, isReady } = useAuth(); const [query, setQuery] = useState(""); const [searchedQuery, setSearchedQuery] = useState(""); const [solutions, setSolutions] = useState<PracticalSolution[]>([]); const [loading, setLoading] = useState(false); const [error, setError] = useState(""); const [toastOpen, setToastOpen] = useState(false); const lastQuery = useRef(""); const toastTimer = useRef<number | null>(null);
+  const showSignInToast = useCallback(() => { if (!isReady) return; if (toastTimer.current) window.clearTimeout(toastTimer.current); setToastOpen(true); toastTimer.current = window.setTimeout(() => setToastOpen(false), 3800); }, [isReady]);
   useEffect(() => () => { if (toastTimer.current) window.clearTimeout(toastTimer.current); }, []);
-  const beginDiscovery = useCallback(async (problem: string) => { if (!user) { showSignInToast(); return; } const trimmed = problem.trim(); if (trimmed.length < 3) { setError("Tell us a little more so we can find direct solutions."); return; } setError(""); setQuery(trimmed); setSearchedQuery(""); setSolutions([]); setLoading(true); lastQuery.current = trimmed; try { const response = await fetch("/api/solutions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ problem: trimmed }) }); const data = await response.json() as { solutions?: PracticalSolution[]; error?: string }; if (!response.ok || !data.solutions?.length) throw new Error(data.error || "We could not find solutions just now."); setSolutions(data.solutions); setSearchedQuery(trimmed); requestAnimationFrame(() => document.getElementById("discovery-results")?.scrollIntoView({ behavior: "smooth", block: "start" })); } catch (caught) { setError(caught instanceof Error ? caught.message : "We could not find solutions just now. Please try again."); } finally { setLoading(false); } }, [showSignInToast, user]);
+  const beginDiscovery = useCallback(async (problem: string) => { if (!isReady) return; if (!isAuthenticated) { showSignInToast(); return; } const trimmed = problem.trim(); if (trimmed.length < 3) { setError("Tell us a little more so we can find direct solutions."); return; } setError(""); setQuery(trimmed); setSearchedQuery(""); setSolutions([]); setLoading(true); lastQuery.current = trimmed; try { const response = await fetch("/api/solutions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ problem: trimmed }) }); const data = await response.json() as { solutions?: PracticalSolution[]; error?: string }; if (!response.ok || !data.solutions?.length) throw new Error(data.error || "We could not find solutions just now."); setSolutions(data.solutions); setSearchedQuery(trimmed); requestAnimationFrame(() => document.getElementById("discovery-results")?.scrollIntoView({ behavior: "smooth", block: "start" })); } catch (caught) { setError(caught instanceof Error ? caught.message : "We could not find solutions just now. Please try again."); } finally { setLoading(false); } }, [isAuthenticated, isReady, showSignInToast]);
   useEffect(() => { const param = searchParams.get("query")?.trim(); if (param && param !== lastQuery.current) beginDiscovery(param); }, [searchParams, beginDiscovery]);
   function reset() { setLoading(false); setSearchedQuery(""); setSolutions([]); setError(""); setQuery(""); lastQuery.current = ""; window.history.replaceState({}, "", "/"); window.scrollTo({ top: 0, behavior: "smooth" }); }
   const showingDiscovery = loading || Boolean(searchedQuery);
