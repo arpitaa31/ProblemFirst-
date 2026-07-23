@@ -3,7 +3,7 @@
 :root { --ink: #142033; --paper: #f7f7f4; --muted: #68717d; --line: #dfe2e6; --blue: #3857e8; --orange: #e55b2d; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Manrope", Arial, sans-serif; }
+body { margin: 0; isolation: isolate; background: var(--paper); color: var(--ink); font-family: "Manrope", Arial, sans-serif; }
 button, input { font: inherit; }
 button { cursor: pointer; }
 ::selection { background: #cad4ff; color: #142033; }
@@ -25,19 +25,25 @@ button { cursor: pointer; }
 .motion-reveal[data-motion-variant="fade"][data-motion-state="hidden"] { transform: none; }
 .motion-reveal[data-motion-variant="slide"][data-motion-state="hidden"] { transform: translate3d(-18px,0,0); }
 .card-lift { transition: border-color .24s ease, background-color .24s ease, transform .32s cubic-bezier(.16,1,.3,1), box-shadow .32s cubic-bezier(.16,1,.3,1); }
-.card-lift:hover { transform: translateY(-3px); border-color: #aeb9e9; box-shadow: 0 12px 22px rgba(20,32,51,.07); }
-.pressable { position: relative; overflow: hidden; transition: background-color .22s ease, color .22s ease, border-color .22s ease, transform .18s ease, box-shadow .22s ease; }
-.pressable::after { content: ""; position: absolute; inset: 0; width: 42%; background: rgba(255,255,255,.16); transform: translateX(-120%) skewX(-18deg); pointer-events: none; }
-.pressable:hover::after { animation: sheen .55s ease; }
-.pressable:active { transform: translateY(1px) scale(.985); }
+.card-lift:hover { transform: translateY(-2px); border-color: #aeb9e9; box-shadow: 0 10px 20px rgba(20,32,51,.08); }
+.pressable { position: relative; overflow: hidden; transition: background-color .2s ease-in-out, color .2s ease-in-out, border-color .2s ease-in-out, transform .2s ease-in-out, box-shadow .2s ease-in-out; }
+.pressable:hover { transform: scale(1.02); box-shadow: 0 8px 20px rgba(20,32,51,.12); }
+.pressable:active { transform: scale(1.01); }
 .link-sweep { border-bottom: 1px solid transparent; transition: border-color .2s ease; }
 .link-sweep:hover { border-color: currentColor; }
 .nav-link { position: relative; }
 .nav-link::after { content: ""; position: absolute; right: 0; bottom: -6px; left: 0; height: 1px; background: var(--blue); transform: scaleX(0); transform-origin: right; transition: transform .24s cubic-bezier(.16,1,.3,1); }
 .nav-link:hover::after { transform: scaleX(1); transform-origin: left; }
 .nav-drawer { animation: drawer-enter .24s cubic-bezier(.16,1,.3,1) both; }
-.search-shell { transition: transform .24s cubic-bezier(.16,1,.3,1), box-shadow .24s ease, border-color .24s ease; }
-.search-shell:focus-within { transform: translateY(-2px); border-color: #3857e8; box-shadow: 0 16px 32px rgba(56,87,232,.14); }
+.search-shell { transition: transform .22s ease-in-out, box-shadow .22s ease-in-out, border-color .22s ease-in-out; }
+.search-shell:focus-within { transform: translateY(-1px) scale(1.005); border-color: #c4b5fd; box-shadow: 0 0 0 2px rgba(167,139,250,.3), 0 14px 28px rgba(20,32,51,.08); }
+.background-orb { filter: blur(72px); opacity: .18; will-change: transform; }
+.background-orb--peach { background: radial-gradient(circle at 36% 42%, rgba(246,166,151,.78), rgba(246,186,143,.42) 48%, transparent 72%); animation: orb-float-peach 22s ease-in-out infinite; }
+.background-orb--aqua { background: radial-gradient(circle at 58% 45%, rgba(119,205,198,.72), rgba(155,224,209,.34) 50%, transparent 72%); animation: orb-float-aqua 24s ease-in-out infinite; }
+.background-orb--gold { background: radial-gradient(circle at 50% 44%, rgba(242,190,112,.7), rgba(249,183,123,.3) 52%, transparent 74%); animation: orb-float-gold 21s ease-in-out infinite; }
+@keyframes orb-float-peach { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(32px,24px,0) scale(1.06); } }
+@keyframes orb-float-aqua { 0%,100% { transform: translate3d(0,0,0) scale(1.02); } 50% { transform: translate3d(-34px,30px,0) scale(.96); } }
+@keyframes orb-float-gold { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(24px,-24px,0) scale(1.05); } }
 .loading-line { position: relative; overflow: hidden; background: #e8ebee; }
 .loading-line::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.85), transparent); transform: translateX(-100%); animation: sheen 1.35s ease-in-out infinite; }
 .journey-step { overflow: hidden; min-height: 100%; transition: transform .4s cubic-bezier(.16,1,.3,1), box-shadow .4s cubic-bezier(.16,1,.3,1); }
@@ -124,7 +130,7 @@ button { cursor: pointer; }
   #how-it-works-timeline[data-ready="true"] .timeline-step, #how-it-works-timeline[data-ready="true"] .timeline-icon, #how-it-works-timeline[data-ready="true"] .timeline-tags span, #how-it-works-timeline[data-ready="true"] .timeline-routes span, #how-it-works-timeline[data-ready="true"] .timeline-check, #how-it-works-timeline[data-ready="true"] .timeline-check svg { animation: none; opacity: 1; transform: none; stroke-dashoffset: 0; }
   .timeline-query i { animation: none; }
 }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } .motion-reveal[data-motion-state="hidden"] { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } .background-orb { animation: none; } .motion-reveal[data-motion-state="hidden"] { opacity: 1; transform: none; } }
 .problem-marquee-row { overflow: hidden; padding: 2px 0 4px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
 .problem-marquee-track { display: flex; width: max-content; will-change: transform; transform: translate3d(0,0,0); }
 .problem-marquee-track--left { animation: marquee-left 28s linear infinite; }

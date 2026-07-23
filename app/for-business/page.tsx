@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Background from "@/components/background";
-import BrandMark from "@/components/brand-mark";
 import { Icon } from "@/components/icon";
 import SiteHeader from "@/components/site-header";
 import TeamsAmbient from "@/components/teams-ambient";
@@ -21,4 +20,4 @@ export default function BusinessPage() {
   </section></main>;
 }
 
-function PartnerPreview() { return <div className="teams-dashboard relative border border-white/20 bg-[#182a42] p-5 shadow-[10px_10px_0_rgba(56,87,232,.45)]"><div className="flex items-center gap-2 border-b border-white/15 pb-4"><BrandMark className="size-6" /><div><p className="text-xs font-bold">Partner workspace</p><p className="text-[10px] text-white/50">A concise view of relevant discovery</p></div></div><div className="mt-6 grid grid-cols-2 gap-px bg-white/15"><div className="bg-[#16263b] p-4"><p className="text-[10px] font-bold uppercase tracking-[.13em] text-[#b6c2ef]">Mapped support</p><p className="mt-6 text-sm font-bold">Ergonomic desk support</p><p className="mt-2 text-xs leading-5 text-white/55">Workspace comfort · focused work</p></div><div className="bg-[#1d304b] p-4"><p className="text-[10px] font-bold uppercase tracking-[.13em] text-[#b6c2ef]">This month</p><p className="mt-6 text-4xl font-bold tracking-[-.07em]">84</p><p className="mt-2 text-xs text-white/55">relevant views</p></div></div></div>; }
+function PartnerPreview() { return <div className="teams-dashboard relative border border-white/20 bg-[#182a42] p-5 shadow-[10px_10px_0_rgba(56,87,232,.45)]"><div className="flex items-center gap-2 border-b border-white/15 pb-4"><div><p className="text-xs font-bold">Partner workspace</p><p className="text-[10px] text-white/50">A concise view of relevant discovery</p></div></div><div className="mt-6 grid grid-cols-2 gap-px bg-white/15"><div className="bg-[#16263b] p-4"><p className="text-[10px] font-bold uppercase tracking-[.13em] text-[#b6c2ef]">Mapped support</p><p className="mt-6 text-sm font-bold">Ergonomic desk support</p><p className="mt-2 text-xs leading-5 text-white/55">Workspace comfort · focused work</p></div><div className="bg-[#1d304b] p-4"><p className="text-[10px] font-bold uppercase tracking-[.13em] text-[#b6c2ef]">This month</p><p className="mt-6 text-4xl font-bold tracking-[-.07em]">84</p><p className="mt-2 text-xs text-white/55">relevant views</p></div></div></div>; }
