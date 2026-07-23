@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import BackgroundOrbs from "@/components/background-orbs";
+import "@fontsource/dm-serif-display/latin-400.css";
+import "@fontsource/manrope/latin-400.css";
+import "@fontsource/manrope/latin-500.css";
+import "@fontsource/manrope/latin-600.css";
+import "@fontsource/manrope/latin-700.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -8,9 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="en">
-      <body className="relative isolate overflow-x-hidden"><BackgroundOrbs /><div className="relative z-10">{children}</div></body>
-    </html>
-  );
+  return <html lang="en"><body>{children}</body></html>;
 }

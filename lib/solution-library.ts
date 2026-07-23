@@ -1,0 +1,46 @@
+import type { PracticalSolution } from "@/lib/solution-types";
+
+type LibraryEntry = { matches: string[]; solutions: PracticalSolution[] };
+
+const entries: LibraryEntry[] = [
+  { matches: ["laptop overheat", "laptop overheating", "computer overheat"], solutions: [
+    { title: "Clear dust from the cooling vents", why: "Blocked vents trap heat and force the fan to work harder.", detail: "Shut down the laptop, use short bursts of compressed air at the intake and exhaust, and keep the fan from spinning freely.", difficulty: "Easy", estimatedCost: "$8–$15", estimatedTime: "10–15 min", effectiveness: "High for dusty vents", related: ["Compressed air", "Soft brush"] },
+    { title: "Reduce background CPU usage", why: "High CPU load creates heat even when you are not actively using an app.", detail: "Check Task Manager or Activity Monitor, close the heaviest background processes, and review startup apps.", difficulty: "Easy", estimatedCost: "$0", estimatedTime: "5–10 min", effectiveness: "High when fans run under light use", related: ["Task Manager", "Activity Monitor"] },
+    { title: "Use a ventilated cooling stand", why: "Raising the chassis improves airflow around the intake vents.", detail: "Use a simple laptop stand first; add an active cooling pad if heat remains an issue during heavier work.", difficulty: "Easy", estimatedCost: "$15–$45", estimatedTime: "2 min", effectiveness: "Moderate", related: ["Laptop stand", "Cooling pad"] },
+    { title: "Update graphics and power drivers", why: "Driver or power-management bugs can keep hardware working harder than intended.", detail: "Install updates from the laptop maker or graphics manufacturer, then restart and check temperatures again.", difficulty: "Medium", estimatedCost: "$0", estimatedTime: "15–25 min", effectiveness: "Moderate", related: ["Manufacturer support", "Graphics driver"] },
+    { title: "Replace thermal paste if the issue persists", why: "Old thermal compound transfers heat less effectively between the processor and heatsink.", detail: "This requires opening the device; use a repair shop if the laptop is under warranty or you are unsure.", difficulty: "Hard", estimatedCost: "$10–$90", estimatedTime: "30–90 min", effectiveness: "High for older laptops", related: ["Thermal paste", "Repair service"] },
+  ] },
+  { matches: ["room dusty", "dusty room", "dust every day"], solutions: [
+    { title: "Seal window and door gaps", why: "Outdoor air can carry fine dust through small gaps around frames and doors.", detail: "Check for drafts, then add weatherstripping or a door sweep where you can see or feel air movement.", difficulty: "Easy", estimatedCost: "$10–$35", estimatedTime: "30–60 min", effectiveness: "High near busy roads or open windows", related: ["Weatherstripping", "Door sweep"] },
+    { title: "Run a HEPA air purifier", why: "A true HEPA filter continuously captures fine airborne particles before they settle.", detail: "Choose one sized for the room and run it consistently, especially when windows are open.", difficulty: "Easy", estimatedCost: "$80–$250", estimatedTime: "5 min", effectiveness: "High for airborne dust", related: ["HEPA purifier", "Replacement filter"] },
+    { title: "Vacuum with a sealed HEPA filter", why: "A sealed system traps fine particles instead of recirculating them back into the room.", detail: "Vacuum floors, soft furnishings, and edges weekly; move slowly to let the brush pick up fine dust.", difficulty: "Easy", estimatedCost: "$0–$250", estimatedTime: "20–40 min", effectiveness: "High for settled dust", related: ["HEPA vacuum", "Upholstery attachment"] },
+    { title: "Wash bedding and soft textiles weekly", why: "Fabric holds dust and releases it again when disturbed.", detail: "Wash sheets, pillowcases, throws, and pet bedding on a regular rotation.", difficulty: "Easy", estimatedCost: "$0–$10", estimatedTime: "45–90 min", effectiveness: "Moderate", related: ["Laundry detergent", "Allergen-proof covers"] },
+    { title: "Replace HVAC filters on schedule", why: "A loaded filter reduces the system’s ability to trap incoming particles.", detail: "Check the filter size and replace it every one to three months, depending on use and local dust.", difficulty: "Easy", estimatedCost: "$10–$35", estimatedTime: "5 min", effectiveness: "High with central air", related: ["HVAC filter"] },
+  ] },
+  { matches: ["screen", "eye", "eyes", "monitor", "display"], solutions: [
+    { title: "Use a 20–20–20 visual reset", why: "Short distance breaks reduce sustained close-focus strain during screen work.", detail: "Every 20 minutes, look roughly 20 feet away for 20 seconds.", difficulty: "Easy", estimatedCost: "$0", estimatedTime: "20 sec", effectiveness: "Good starting point", related: ["Break reminder app"] },
+    { title: "Increase text size and reduce glare", why: "Small type and reflected light make your eyes work harder than needed.", detail: "Increase text size first, then reposition the display or nearby light source to remove reflections.", difficulty: "Easy", estimatedCost: "$0", estimatedTime: "5 min", effectiveness: "High for squinting and glare", related: ["Monitor light bar", "Anti-glare screen"] },
+    { title: "Set a comfortable viewing distance", why: "A display that is too close or too low can increase eye and neck tension together.", detail: "Aim for about an arm’s length away with the top of the screen near eye level.", difficulty: "Easy", estimatedCost: "$0–$40", estimatedTime: "10 min", effectiveness: "Moderate", related: ["Monitor stand", "Laptop riser"] },
+  ] },
+  { matches: ["sleep", "night", "insomnia", "switch off", "bed"], solutions: [
+    { title: "Set one repeatable wind-down cue", why: "A consistent signal helps separate the end of the day from sleep.", detail: "Choose one low-effort action to repeat nightly, such as dimming lights or making tea.", difficulty: "Easy", estimatedCost: "$0", estimatedTime: "10 min", effectiveness: "Good starting point", related: ["Warm bedside lamp"] },
+    { title: "Move your phone out of arm’s reach", why: "A little distance makes late-night checking less automatic.", detail: "Charge it across the room and use a basic alarm if needed.", difficulty: "Easy", estimatedCost: "$0–$15", estimatedTime: "5 min", effectiveness: "Moderate", related: ["Alarm clock"] },
+    { title: "Write down tomorrow’s first task", why: "A short plan can reduce the urge to keep rehearsing unfinished work in bed.", detail: "Keep it to one to three items, then leave the list outside the bedroom.", difficulty: "Easy", estimatedCost: "$0", estimatedTime: "3 min", effectiveness: "Moderate", related: ["Notebook"] },
+  ] },
+  { matches: ["overwhelmed", "overwhelm", "too much", "stress"], solutions: [
+    { title: "Make a one-page triage list", why: "Putting open loops in one place makes the next decision visible.", detail: "Write everything down, then choose one item for today and two for later.", difficulty: "Easy", estimatedCost: "$0", estimatedTime: "10 min", effectiveness: "High for competing tasks", related: ["Notebook", "Task app"] },
+    { title: "Protect one 25-minute focus block", why: "A bounded window restores progress without needing a full reset.", detail: "Silence notifications and work on one clearly named task until the timer ends.", difficulty: "Easy", estimatedCost: "$0", estimatedTime: "25 min", effectiveness: "Moderate", related: ["Timer app"] },
+    { title: "Move one task into a support channel", why: "Some workload belongs with another person, service, or deadline conversation.", detail: "Delegate, ask for an extension, or book the support that removes the bottleneck.", difficulty: "Medium", estimatedCost: "Varies", estimatedTime: "10 min", effectiveness: "High when workload cannot fit", related: ["Scheduling service", "Coach or advisor"] },
+  ] },
+];
+
+const defaultSolutions: PracticalSolution[] = [
+  { title: "Inspect the most likely source first", why: "A focused first check prevents time and money being spent on unrelated fixes.", detail: "Start with the component, environment, or routine most directly connected to the problem you described.", difficulty: "Easy", estimatedCost: "$0", estimatedTime: "15 min", effectiveness: "Good first step" },
+  { title: "Compare repair, replacement, and service options", why: "The right route depends on whether the problem is isolated, recurring, or needs specialist equipment.", detail: "List the options that address the issue directly, then compare cost, effort, and availability.", difficulty: "Medium", estimatedCost: "Varies", estimatedTime: "20 min", effectiveness: "Varies" },
+  { title: "Use a qualified local service when needed", why: "A professional can diagnose physical, technical, or safety-critical issues that need hands-on assessment.", detail: "Choose a provider with relevant experience and ask for a clear estimate before work begins.", difficulty: "Easy", estimatedCost: "Varies", estimatedTime: "30 min+", effectiveness: "High for specialist issues" },
+];
+
+export function getLibrarySolutions(query: string) {
+  const normalized = query.toLowerCase();
+  return entries.find((entry) => entry.matches.some((match) => normalized.includes(match)))?.solutions ?? defaultSolutions;
+}
