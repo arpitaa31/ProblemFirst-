@@ -1,7 +1,9 @@
 import { getLibrarySolutions } from "@/lib/solution-library";
+import { HeuristicInsightService } from "@/lib/heuristic-insight-service";
 import type { PracticalSolution } from "@/lib/solution-types";
 
 export const runtime = "nodejs";
+const fallback = new HeuristicInsightService();
 
 function parseSolutions(value: string): PracticalSolution[] | null {
   try {
@@ -14,9 +16,11 @@ function parseSolutions(value: string): PracticalSolution[] | null {
 }
 
 export async function POST(request: Request) {
+  let problem = "";
   try {
-    const { problem } = await request.json() as { problem?: unknown };
-    if (typeof problem !== "string" || problem.trim().length < 3) return Response.json({ error: "Add a little more detail so we can find practical solutions." }, { status: 400 });
+    const body = await request.json() as { problem?: unknown };
+    if (typeof body.problem !== "string" || body.problem.trim().length < 3) return Response.json({ error: "Add a little more detail so we can find practical solutions." }, { status: 400 });
+    problem = body.problem.trim();
     if (problem.length > 1200) return Response.json({ error: "Please keep your search under 1,200 characters." }, { status: 400 });
     const library = getLibrarySolutions(problem);
     const hasLibraryMatch = !library.some((solution) => solution.title === "Inspect the most likely source first");
@@ -26,5 +30,5 @@ export async function POST(request: Request) {
     const data = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
     const generated = parseSolutions(data.candidates?.[0]?.content?.parts?.[0]?.text ?? "");
     return Response.json({ solutions: generated ?? library, source: generated ? "solution-engine" : "curated-library" });
-  } catch { return Response.json({ solutions: getLibrarySolutions(""), source: "curated-library" }); }
+  } catch { return Response.json({ solutions: fallback.generate(problem), source: "heuristic-fallback" }); }
 }
