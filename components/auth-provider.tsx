@@ -9,10 +9,10 @@ const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState(!auth);
 
   useEffect(() => {
-    if (!auth) { setIsReady(true); return; }
+    if (!auth) return;
     return onAuthStateChanged(auth, (nextUser) => { setUser(nextUser); setIsReady(true); });
   }, []);
 
