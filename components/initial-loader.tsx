@@ -4,7 +4,6 @@ import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, u
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import BrandMark from "@/components/brand-mark";
 
-const SESSION_KEY = "problemfirst:initial-loader:v3:seen";
 const ease = [0.16, 1, 0.3, 1] as const;
 type IntroPhase = "intro" | "move" | "reveal" | "converge" | "mark" | "exit" | "complete";
 
@@ -51,7 +50,7 @@ function AmbientField({ reduced }: { reduced: boolean | null }) {
 export default function InitialLoader({ children }: Readonly<{ children: React.ReactNode }>) {
   const reduceMotion = useReducedMotion();
   const [phase, setPhase] = useState<IntroPhase>("intro");
-  const [shouldPlay, setShouldPlay] = useState(true);
+  const shouldPlay = true;
   const secondRef = useRef<HTMLSpanElement>(null);
   const [firstOffset, setFirstOffset] = useState(76);
 
@@ -62,13 +61,10 @@ export default function InitialLoader({ children }: Readonly<{ children: React.R
   }, []);
 
   useEffect(() => {
-    try { if (window.sessionStorage.getItem(SESSION_KEY)) { const skip = window.setTimeout(() => { setShouldPlay(false); setPhase("complete"); }, 0); return () => window.clearTimeout(skip); } } catch { /* Storage is optional. */ }
     const timings = reduceMotion ? [["exit", 120], ["complete", 220]] as const : [["move", 930], ["reveal", 1450], ["converge", 2210], ["mark", 2660], ["exit", 3200], ["complete", 3760]] as const;
     const timers = timings.map(([next, delay]) => window.setTimeout(() => setPhase(next), delay));
     return () => timers.forEach(window.clearTimeout);
   }, [reduceMotion]);
-
-  useEffect(() => { if (phase !== "complete") return; try { window.sessionStorage.setItem(SESSION_KEY, "true"); } catch { /* Storage is optional. */ } }, [phase]);
 
   const leaving = phase === "exit" || phase === "complete";
   const titleComplete = phase === "reveal" || phase === "converge" || phase === "mark" || leaving;
