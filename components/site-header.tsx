@@ -11,8 +11,8 @@ export default function SiteHeader({ tone = "light" }: { tone?: "light" | "dark"
   const [open, setOpen] = useState(false);
   const dark = tone === "dark";
   const close = () => setOpen(false);
-  const navLink = `nav-link text-[13px] font-semibold transition ${dark ? "text-white/65 hover:text-white" : "text-[#596473] hover:text-[#142033]"}`;
-  return <header className={`relative z-40 border-b backdrop-blur-xl ${dark ? "border-white/10 bg-[#122033]/80" : "border-neutral-200 bg-white/70"}`}>
+  const navLink = `site-nav-link text-[13px] transition ${dark ? "text-white/80 hover:text-white" : "text-[#202044] hover:text-[#5a45ff]"}`;
+  return <header className={`site-header relative z-40 ${dark ? "border-white/10 bg-[#122033]/90 shadow-none" : ""}`}>
     <div className="mx-auto flex h-[68px] max-w-[1180px] items-center justify-between px-5 sm:px-8">
       <Link href="/" className="flex items-center" aria-label="ProblemFirst home"><Image src={dark ? "/problemfirst-logo-dark-v2.png" : "/problemfirst-logo-light-v2.png"} alt="ProblemFirst" width={1645} height={371} priority className="hidden w-[155px] sm:block" /><Image src="/problemfirst-icon-v2.png" alt="ProblemFirst" width={563} height={702} priority className="h-9 w-auto sm:hidden" /></Link>
       <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-7 lg:flex" aria-label="Main navigation"><Link className={navLink} href="/categories">Explore</Link><Link className={navLink} href="/trending">Signals</Link><Link className={navLink} href="/#how-it-works">How it works</Link></nav>
